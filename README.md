@@ -147,6 +147,12 @@ Yamaha receivers use an internal volume scale (typically 0-161). This bridge con
 | Service won't install | Make sure you right-click the .bat file and select "Run as Administrator". |
 | Want to control Zone 2 | Change `yamaha.zone` to `"zone2"` in config.json. |
 
+## Support
+
+If this project helped you, consider buying me a coffee:
+
+[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-support-yellow?logo=buy-me-a-coffee)](https://buymeacoffee.com/afarmerinjapan)
+
 ## License
 
 MIT
