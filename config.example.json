@@ -1,0 +1,11 @@
+{
+  "yamaha": {
+    "ip": "192.168.0.XX",
+    "zone": "main"
+  },
+  "sinricpro": {
+    "appKey": "YOUR_APP_KEY",
+    "appSecret": "YOUR_APP_SECRET",
+    "deviceId": "YOUR_DEVICE_ID"
+  }
+}
