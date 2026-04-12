@@ -3,10 +3,13 @@
 Control your Yamaha MusicCast receiver with Alexa voice commands after Yamaha deprecated their native Alexa skill.
 
 **Voice commands:**
-- "Alexa, turn on Receiver"
-- "Alexa, turn off Receiver"
-- "Alexa, set Receiver to 30" (sets volume to 30%)
+- "Alexa, turn on Receiver" / "turn off Receiver"
+- "Alexa, set Receiver volume to 30"
 - "Alexa, turn up Receiver" / "turn down Receiver"
+- "Alexa, mute Receiver" / "unmute Receiver"
+- "Alexa, pause Receiver" / "resume Receiver" / "stop Receiver"
+- "Alexa, next on Receiver" / "previous on Receiver"
+- "Alexa, switch Receiver input to HDMI 1"
 
 ## How It Works
 
@@ -45,7 +48,7 @@ If you see JSON with power, volume, and input fields, your receiver is compatibl
 
 1. Create a free account at https://sinric.pro
 2. Go to **Devices** -> **Add Device**
-3. Set the device type to **Dimmable Switch** (this maps on/off to power and dim level to volume)
+3. Set the device type to **TV**
 4. Name it what you want Alexa to call it (e.g., "Receiver", "Stereo", "Yamaha")
 5. Save and copy the **Device ID** from the device page
 6. Go to **Credentials** -> create a new App Key if you don't have one
@@ -122,9 +125,30 @@ Service logs are written to `service.log` in this folder.
 |---|---|
 | `yamaha.ip` | Your receiver's IP address on the local network |
 | `yamaha.zone` | Zone to control: `main`, `zone2`, `zone3`, or `zone4` |
+| `yamaha.inputMap` | (Optional) Custom mapping of Alexa input names to Yamaha input IDs. See `config.example.json` for defaults. |
 | `sinricpro.appKey` | App Key from Sinric Pro Credentials page |
 | `sinricpro.appSecret` | App Secret from Sinric Pro Credentials page |
 | `sinricpro.deviceId` | Device ID from your Sinric Pro device page |
+
+## Voice Commands
+
+| Command | What it does |
+|---|---|
+| "Alexa, turn on Receiver" | Powers on the receiver |
+| "Alexa, turn off Receiver" | Puts receiver in standby |
+| "Alexa, set Receiver volume to 30" | Sets volume to 30% |
+| "Alexa, turn up Receiver" | Increases volume |
+| "Alexa, turn down Receiver" | Decreases volume |
+| "Alexa, mute Receiver" | Mutes the receiver |
+| "Alexa, unmute Receiver" | Unmutes the receiver |
+| "Alexa, pause Receiver" | Pauses playback (Spotify, etc.) |
+| "Alexa, resume Receiver" | Resumes playback |
+| "Alexa, stop Receiver" | Stops playback |
+| "Alexa, next on Receiver" | Next track |
+| "Alexa, previous on Receiver" | Previous track |
+| "Alexa, switch Receiver input to HDMI 1" | Switches to HDMI 1 |
+| "Alexa, switch Receiver input to Spotify" | Switches to Spotify |
+| "Alexa, switch Receiver input to Bluetooth" | Switches to Bluetooth |
 
 ## Volume Mapping
 
@@ -132,9 +156,29 @@ Yamaha receivers use an internal volume scale (typically 0-161). This bridge con
 
 | Alexa Command | Percentage | Approx. Receiver Volume |
 |---|---|---|
-| "Set to 20" | 20% | 32/161 |
-| "Set to 30" | 30% | 48/161 |
-| "Set to 50" | 50% | 81/161 |
+| "Set volume to 20" | 20% | 32/161 |
+| "Set volume to 30" | 30% | 48/161 |
+| "Set volume to 50" | 50% | 81/161 |
+
+## Input Mapping
+
+The bridge maps Alexa input names to Yamaha input IDs. The default map covers common inputs. To customize, add an `inputMap` to your `config.json`:
+
+```json
+{
+  "yamaha": {
+    "ip": "192.168.0.75",
+    "zone": "main",
+    "inputMap": {
+      "Chromecast": "hdmi1",
+      "PlayStation": "hdmi2",
+      "Turntable": "audio1"
+    }
+  }
+}
+```
+
+Then say: "Alexa, switch Receiver input to Chromecast"
 
 ## Troubleshooting
 
@@ -146,6 +190,7 @@ Yamaha receivers use an internal volume scale (typically 0-161). This bridge con
 | Volume seems too loud/quiet | Adjust the percentage. 30% is a comfortable listening level for most setups. |
 | Service won't install | Make sure you right-click the .bat file and select "Run as Administrator". |
 | Want to control Zone 2 | Change `yamaha.zone` to `"zone2"` in config.json. |
+| Input switching doesn't work | Check that the input name matches one in your `inputMap`. Run `http://RECEIVER_IP/YamahaExtendedControl/v1/system/getNameText` to see available inputs. |
 
 ## Support
 

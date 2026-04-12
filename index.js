@@ -1,4 +1,4 @@
-const { SinricPro: SinricProClass, SinricProDimSwitch } = require('sinricpro');
+const { SinricPro: SinricProClass, SinricProTV } = require('sinricpro');
 const SinricPro = SinricProClass.getInstance();
 const http = require('http');
 const path = require('path');
@@ -36,6 +36,28 @@ const YAMAHA_ZONE = config.yamaha.zone;
 const APP_KEY = config.sinricpro.appKey;
 const APP_SECRET = config.sinricpro.appSecret;
 const DEVICE_ID = config.sinricpro.deviceId;
+
+// Map Alexa input names to Yamaha input IDs
+const INPUT_MAP = config.yamaha.inputMap || {
+  'HDMI 1':     'hdmi1',
+  'HDMI 2':     'hdmi2',
+  'HDMI 3':     'hdmi3',
+  'HDMI 4':     'hdmi4',
+  'AV 1':       'av1',
+  'AV 2':       'av2',
+  'AV 3':       'av3',
+  'AUX':        'aux',
+  'AUDIO 1':    'audio1',
+  'AUDIO 2':    'audio2',
+  'AUDIO 3':    'audio3',
+  'USB':        'usb',
+  'Bluetooth':  'bluetooth',
+  'Spotify':    'spotify',
+  'AirPlay':    'airplay',
+  'TUNER':      'tuner',
+  'NET RADIO':  'net_radio',
+  'Server':     'server',
+};
 
 // --- Yamaha Receiver API ---
 function yamahaGet(apiPath) {
@@ -75,6 +97,24 @@ async function setYamahaVolume(percent) {
   return result;
 }
 
+async function setYamahaMute(mute) {
+  const result = await yamahaGet(`/${YAMAHA_ZONE}/setMute?enable=${mute}`);
+  console.log(`[Yamaha] Mute -> ${mute}`);
+  return result;
+}
+
+async function setYamahaInput(inputId) {
+  const result = await yamahaGet(`/${YAMAHA_ZONE}/setInput?input=${inputId}`);
+  console.log(`[Yamaha] Input -> ${inputId}`);
+  return result;
+}
+
+async function setYamahaPlayback(action) {
+  const result = await yamahaGet(`/netusb/setPlayback?playback=${action}`);
+  console.log(`[Yamaha] Playback -> ${action}`);
+  return result;
+}
+
 // --- Main ---
 async function main() {
   console.log('=== Yamaha Alexa Bridge ===');
@@ -89,36 +129,36 @@ async function main() {
     process.exit(1);
   }
 
-  // Create dimmable switch device
-  const receiver = SinricProDimSwitch(DEVICE_ID);
+  // Create TV device
+  const receiver = SinricProTV(DEVICE_ID);
 
-  // Handle power on/off from Alexa
+  // Power on/off
   receiver.onPowerState(async (deviceId, state) => {
-    console.log(`[Alexa] Power command: ${state ? 'ON' : 'OFF'}`);
+    console.log(`[Alexa] Power: ${state ? 'ON' : 'OFF'}`);
     try {
       await setYamahaPower(state);
       return true;
     } catch (err) {
-      console.error('[Alexa] Power command failed:', err.message);
+      console.error('[Alexa] Power failed:', err.message);
       return false;
     }
   });
 
-  // Handle volume (power level) from Alexa
-  receiver.onPowerLevel(async (deviceId, powerLevel) => {
-    console.log(`[Alexa] Volume command: ${powerLevel}%`);
+  // Set volume (0-100)
+  receiver.onVolume(async (deviceId, volume) => {
+    console.log(`[Alexa] Volume: ${volume}`);
     try {
-      await setYamahaVolume(powerLevel);
+      await setYamahaVolume(volume);
       return true;
     } catch (err) {
-      console.error('[Alexa] Volume command failed:', err.message);
+      console.error('[Alexa] Volume failed:', err.message);
       return false;
     }
   });
 
-  // Handle relative volume adjustment
-  receiver.onAdjustPowerLevel(async (deviceId, delta) => {
-    console.log(`[Alexa] Volume adjust: ${delta > 0 ? '+' : ''}${delta}%`);
+  // Adjust volume (relative)
+  receiver.onAdjustVolume(async (deviceId, delta) => {
+    console.log(`[Alexa] Volume adjust: ${delta > 0 ? '+' : ''}${delta}`);
     try {
       const status = await getYamahaStatus();
       const maxVolume = status.max_volume || 161;
@@ -128,6 +168,62 @@ async function main() {
       return true;
     } catch (err) {
       console.error('[Alexa] Volume adjust failed:', err.message);
+      return false;
+    }
+  });
+
+  // Mute/unmute
+  receiver.onMute(async (deviceId, mute) => {
+    console.log(`[Alexa] Mute: ${mute}`);
+    try {
+      await setYamahaMute(mute);
+      return true;
+    } catch (err) {
+      console.error('[Alexa] Mute failed:', err.message);
+      return false;
+    }
+  });
+
+  // Media controls (play, pause, stop, next, previous)
+  receiver.onMediaControl(async (deviceId, control) => {
+    console.log(`[Alexa] Media: ${control}`);
+    try {
+      const controlMap = {
+        'Play':           'play',
+        'Pause':          'pause',
+        'Stop':           'stop',
+        'Next':           'next',
+        'Previous':       'previous',
+        'FastForward':    'fast_forward',
+        'Rewind':         'fast_reverse',
+      };
+      const action = controlMap[control];
+      if (action) {
+        await setYamahaPlayback(action);
+        return true;
+      }
+      console.log(`[Alexa] Unknown media control: ${control}`);
+      return false;
+    } catch (err) {
+      console.error('[Alexa] Media control failed:', err.message);
+      return false;
+    }
+  });
+
+  // Input selection
+  receiver.onSelectInput(async (deviceId, input) => {
+    console.log(`[Alexa] Input: ${input}`);
+    try {
+      // Try exact match in input map first, then case-insensitive search
+      let yamahaInput = INPUT_MAP[input];
+      if (!yamahaInput) {
+        const key = Object.keys(INPUT_MAP).find(k => k.toLowerCase() === input.toLowerCase());
+        yamahaInput = key ? INPUT_MAP[key] : input.toLowerCase().replace(/\s+/g, '_');
+      }
+      await setYamahaInput(yamahaInput);
+      return true;
+    } catch (err) {
+      console.error('[Alexa] Input switch failed:', err.message);
       return false;
     }
   });

@@ -1,7 +1,20 @@
 {
   "yamaha": {
     "ip": "192.168.0.XX",
-    "zone": "main"
+    "zone": "main",
+    "inputMap": {
+      "HDMI 1": "hdmi1",
+      "HDMI 2": "hdmi2",
+      "HDMI 3": "hdmi3",
+      "HDMI 4": "hdmi4",
+      "Bluetooth": "bluetooth",
+      "Spotify": "spotify",
+      "AirPlay": "airplay",
+      "TUNER": "tuner",
+      "AUX": "aux",
+      "USB": "usb",
+      "NET RADIO": "net_radio"
+    }
   },
   "sinricpro": {
     "appKey": "YOUR_APP_KEY",
