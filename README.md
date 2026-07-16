@@ -10,6 +10,7 @@ Control your Yamaha MusicCast receiver with Alexa voice commands after Yamaha de
 - "Alexa, pause Receiver" / "resume Receiver" / "stop Receiver"
 - "Alexa, next on Receiver" / "previous on Receiver"
 - "Alexa, switch Receiver input to HDMI 1"
+- "Alexa, switch Receiver input to Favorite 5"
 
 ## How It Works
 
@@ -149,6 +150,7 @@ Service logs are written to `service.log` in this folder.
 | "Alexa, switch Receiver input to HDMI 1" | Switches to HDMI 1 |
 | "Alexa, switch Receiver input to Spotify" | Switches to Spotify |
 | "Alexa, switch Receiver input to Bluetooth" | Switches to Bluetooth |
+| "Alexa, switch Receiver input to Favorite 5" | Recalls Yamaha preset 5 |
 
 ## Volume Mapping
 
@@ -179,6 +181,25 @@ The bridge maps Alexa input names to Yamaha input IDs. The default map covers co
 ```
 
 Then say: "Alexa, switch Receiver input to Chromecast"
+
+### Preset Mapping
+
+Map an Alexa input name to `preset:1` through `preset:40` to recall a Yamaha MusicCast favorite:
+
+```json
+"inputMap": {
+  "Favorite 5": "preset:5",
+  "Radio Vorarlberg": "preset:13"
+}
+```
+
+Then say: "Alexa, switch Receiver input to Favorite 5" or use your custom name. The example configuration includes numbered favorites 1 through 30.
+
+To list the presets stored on your receiver, open:
+
+```
+http://YOUR_RECEIVER_IP/YamahaExtendedControl/v1/netusb/getPresetInfo
+```
 
 ## Troubleshooting
 

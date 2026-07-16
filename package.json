@@ -4,7 +4,8 @@
   "description": "Control Yamaha MusicCast receivers with Alexa voice commands via Sinric Pro",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node --test"
   },
   "keywords": ["yamaha", "musiccast", "alexa", "sinricpro", "home-automation"],
   "license": "MIT",

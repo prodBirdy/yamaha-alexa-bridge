@@ -104,6 +104,15 @@ async function setYamahaMute(mute) {
 }
 
 async function setYamahaInput(inputId) {
+  if (inputId.startsWith('preset:')) {
+    const preset = Number(inputId.slice('preset:'.length));
+    if (!Number.isInteger(preset) || preset < 1 || preset > 40) {
+      throw new Error(`Invalid Yamaha preset: ${inputId}`);
+    }
+    const result = await yamahaGet(`/netusb/recallPreset?zone=${encodeURIComponent(YAMAHA_ZONE)}&num=${preset}`);
+    console.log(`[Yamaha] Preset -> ${preset}`);
+    return result;
+  }
   const result = await yamahaGet(`/${YAMAHA_ZONE}/setInput?input=${inputId}`);
   console.log(`[Yamaha] Input -> ${inputId}`);
   return result;
