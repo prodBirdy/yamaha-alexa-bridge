@@ -10,7 +10,7 @@ Control your Yamaha MusicCast receiver with Alexa voice commands after Yamaha de
 - "Alexa, pause Receiver" / "resume Receiver" / "stop Receiver"
 - "Alexa, next on Receiver" / "previous on Receiver"
 - "Alexa, switch Receiver input to HDMI 1"
-- "Alexa, switch Receiver input to Favorite 5"
+- "Alexa, Radio Vorarlberg" (with an Alexa routine)
 
 ## How It Works
 
@@ -150,7 +150,7 @@ Service logs are written to `service.log` in this folder.
 | "Alexa, switch Receiver input to HDMI 1" | Switches to HDMI 1 |
 | "Alexa, switch Receiver input to Spotify" | Switches to Spotify |
 | "Alexa, switch Receiver input to Bluetooth" | Switches to Bluetooth |
-| "Alexa, switch Receiver input to Favorite 5" | Recalls Yamaha preset 5 |
+| "Alexa, Radio Vorarlberg" | Recalls the preset assigned by an Alexa routine |
 
 ## Volume Mapping
 
@@ -164,7 +164,7 @@ Yamaha receivers use an internal volume scale (typically 0-161). This bridge con
 
 ## Input Mapping
 
-The bridge maps Alexa input names to Yamaha input IDs. The default map covers common inputs. To customize, add an `inputMap` to your `config.json`:
+The bridge maps input names received from Sinric Pro to Yamaha input IDs. The default map covers common inputs. To customize it, add an `inputMap` to your `config.json`:
 
 ```json
 {
@@ -172,28 +172,39 @@ The bridge maps Alexa input names to Yamaha input IDs. The default map covers co
     "ip": "192.168.0.75",
     "zone": "main",
     "inputMap": {
-      "Chromecast": "hdmi1",
-      "PlayStation": "hdmi2",
-      "Turntable": "audio1"
+      "HDMI 1": "hdmi1",
+      "GAME": "hdmi2",
+      "PHONO": "audio1"
     }
   }
 }
 ```
 
-Then say: "Alexa, switch Receiver input to Chromecast"
+The keys must be input names that Alexa and Sinric Pro already recognize. `inputMap` translates incoming names but does not register new voice names with Alexa.
 
 ### Preset Mapping
 
-Map an Alexa input name to `preset:1` through `preset:40` to recall a Yamaha MusicCast favorite:
+Map an unused Alexa input name to `preset:1` through `preset:40` to recall a Yamaha MusicCast favorite:
 
 ```json
 "inputMap": {
-  "Favorite 5": "preset:5",
-  "Radio Vorarlberg": "preset:13"
+  "INPUT 1": "preset:13"
 }
 ```
 
-Then say: "Alexa, switch Receiver input to Favorite 5" or use your custom name. The example configuration includes numbered favorites 1 through 30.
+The direct command is then: "Alexa, switch Receiver input to Input 1".
+
+#### Friendly voice names with Alexa routines
+
+Use an Alexa routine to hide the technical input name behind a natural phrase:
+
+1. In the Alexa app, open **More > Routines** and add a routine.
+2. Under **When this happens**, choose **Voice** and enter `Radio Vorarlberg`.
+3. Add an action under **Smart Home > Receiver** that changes the input to `INPUT 1`.
+4. If input selection is not offered as a Smart Home action, use a **Custom** action with `Switch Receiver input to Input 1`.
+5. Save the routine.
+
+Now say: "Alexa, Radio Vorarlberg". Repeat this with a different unused, [Alexa-supported input name](https://developer.amazon.com/en-US/docs/alexa/device-apis/alexa-inputcontroller.html#input-property-values) for each preset. This keeps friendly names in Alexa and the preset numbers in `config.json`.
 
 To list the presets stored on your receiver, open:
 
