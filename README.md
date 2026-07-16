@@ -10,7 +10,6 @@ Control your Yamaha MusicCast receiver with Alexa voice commands after Yamaha de
 - "Alexa, pause Receiver" / "resume Receiver" / "stop Receiver"
 - "Alexa, next on Receiver" / "previous on Receiver"
 - "Alexa, switch Receiver input to HDMI 1"
-- "Alexa, Radio Vorarlberg" (with an Alexa routine)
 
 ## How It Works
 
@@ -150,7 +149,6 @@ Service logs are written to `service.log` in this folder.
 | "Alexa, switch Receiver input to HDMI 1" | Switches to HDMI 1 |
 | "Alexa, switch Receiver input to Spotify" | Switches to Spotify |
 | "Alexa, switch Receiver input to Bluetooth" | Switches to Bluetooth |
-| "Alexa, Radio Vorarlberg" | Recalls the preset assigned by an Alexa routine |
 
 ## Volume Mapping
 
@@ -164,7 +162,7 @@ Yamaha receivers use an internal volume scale (typically 0-161). This bridge con
 
 ## Input Mapping
 
-The bridge maps input names received from Sinric Pro to Yamaha input IDs. The default map covers common inputs. To customize it, add an `inputMap` to your `config.json`:
+The bridge maps Alexa input names to Yamaha input IDs. The default map covers common inputs. To customize, add an `inputMap` to your `config.json`:
 
 ```json
 {
@@ -172,15 +170,15 @@ The bridge maps input names received from Sinric Pro to Yamaha input IDs. The de
     "ip": "192.168.0.75",
     "zone": "main",
     "inputMap": {
-      "HDMI 1": "hdmi1",
-      "GAME": "hdmi2",
-      "PHONO": "audio1"
+      "Chromecast": "hdmi1",
+      "PlayStation": "hdmi2",
+      "Turntable": "audio1"
     }
   }
 }
 ```
 
-The keys must be input names that Alexa and Sinric Pro already recognize. `inputMap` translates incoming names but does not register new voice names with Alexa.
+Then say: "Alexa, switch Receiver input to Chromecast"
 
 ### Preset Mapping
 
